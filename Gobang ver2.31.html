@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html>
+	<body>
+
+		<canvas id="Chess" width="700" height="700" background="#FFFFFF"></canvas>
+
+		<script>
+			var chessX = 17;
+			var chessY = 17;
+			var chessSize = 40;
+
+			var c = document.getElementById("Chess");
+			var ctx = c.getContext("2d");
+
+			var who = true;
+
+			var chesspace = new Array(chessX);
+
+			var maxNum = 10;
+			var minNum = 0;
+
+			ctx.beginPath();
+
+
+			//X線
+			for(var i = 1;i<chessY-1;i++){
+				ctx.moveTo(chessSize, i*chessSize);
+				ctx.lineTo((chessX-2)*chessSize, i*chessSize);  
+			}
+			//Y線
+			for(var i = 1;i<chessX-1;i++){
+				ctx.moveTo(i*chessSize, chessSize);
+				ctx.lineTo(i*chessSize, (chessY-2)*chessSize);  
+			}
+			ctx.stroke();
+
+
+			c.addEventListener('mousedown',mouseDownHandler,false);
+
+			//初始化棋盤陣列
+			for(var i = 0;i<chessX;i++){
+
+			    chesspace[i] = new Array(chessX)
+
+				for(var j =0;j<chessY;j++){
+
+				    chesspace[i][j] = 0;
+
+				}
+
+			}
+			for (var i = 0; i < 17; i++) {
+
+			    chesspace[i][0] = 3;
+			    chesspace[0][i] = 3;
+
+			}
+			for (var i = 0; i < 17; i++) {
+
+			    chesspace[i][16] = 3;
+			    chesspace[16][i] = 3;
+
+			}
+
+
+			function mouseDownHandler(event){
+
+				var x = event.pageX;
+				var y = event.pageY;
+
+				for(var i =0;i<chessX+1;i++){
+
+					for(var j = 0;j<chessY+1;j++){
+
+						var minX = (chessSize*0.75)+(i*chessSize);
+						var maxX = (chessSize*0.75)+(i*chessSize)+chessSize/2;
+						var minY = (chessSize*0.75)+(j*chessSize);
+						var maxY = (chessSize*0.75)+(j*chessSize)+chessSize/2;
+
+
+						if(chesspace[i+1][j+1] == 0){
+
+						    if ((x > minX && x < maxX) && (y > minY && y < maxY)) {
+
+						        ctx.beginPath();
+						        ctx.arc(chessSize + (i * chessSize), chessSize + (j * chessSize), chessSize / 3, 0, 2 * Math.PI);
+						        ctx.fillStyle = 'black';
+						        ctx.strokeStyle = 'black';
+						        ctx.fill();
+						        ctx.stroke();
+						        who = false;
+						        chesspace[i + 1][j + 1] = 1;
+						        checkWinB(i + 1, j + 1);
+						        whiteAI();
+                                
+						    }
+
+						   
+
+							/*if (who) {
+
+								if((x>minX && x<maxX) && (y>minY && y<maxY)){
+
+								    ctx.beginPath();
+								    ctx.arc(chessSize + (i*chessSize),chessSize + (j*chessSize),chessSize/3,0,2*Math.PI);
+								    ctx.fillStyle = 'black';
+								    ctx.strokeStyle = 'black';
+								    ctx.fill();
+								    ctx.stroke();
+								    who =false;
+								    chesspace[i+1][j+1] = 1;
+                                    checkWinB(i+1, j+1);
+
+								}								
+
+							} else{
+
+								if((x>minX && x<maxX) && (y>minY && y<maxY)){
+
+								    ctx.beginPath();
+								    ctx.arc(chessSize + (i*chessSize),chessSize + (j*chessSize),chessSize/3,0,2*Math.PI);
+								    ctx.fillStyle = 'white';
+								    ctx.strokeStyle = 'black';
+								    ctx.fill();
+								    ctx.stroke();
+								    who =true;
+								    chesspace[i+1][j+1] = 2;
+								    checkWinW(i+1, j+1);
+
+								}								
+
+							}*/
+
+						}
+						
+					}
+
+				}
+
+			}
+
+			/*function tr()
+			{
+			    
+			    for (var n1 = 0; n1 < 15; n1++)
+			    {
+			        for (var n2 = 0; n2 < 15; n2++)
+			        {
+			            if (chesspace[n1 + 1][n2 + 1] == 2)
+			            {
+
+			            }
+			        }
+			    }
+
+			    
+			}*/
+
+		    //檢查黑色勝利
+			function checkWinB(x, y) {
+			    
+			    //橫向判定
+			    if (checkLineB(x, y, 0, 1) + checkLineB(x, y, 0, -1) + 1 == 5 ||
+			        //直向判定
+                    checkLineB(x, y, 1, 0) + checkLineB(x, y, -1, 0) + 1 == 5 ||
+			        //斜向左上右下判定
+                    checkLineB(x, y, 1, 1) + checkLineB(x, y, -1, -1) + 1 == 5 ||
+			        //斜向右上左下判定
+                    checkLineB(x, y, -1, 1) + checkLineB(x, y, 1, -1) + 1 == 5)
+			    {
+
+			        window.alert("黑棋贏，白棋輸。");
+
+			    }
+
+			}
+
+			//檢查白色勝利
+			function checkWinW(x, y) {
+
+			    //橫向判定
+			    if (checkLineW(x, y, 0, 1) + checkLineW(x, y, 0, -1) + 1 == 5 ||
+			        //直向判定
+                    checkLineW(x, y, 1, 0) + checkLineW(x, y, -1, 0) + 1 == 5 ||
+			        //斜向左上右下判定
+                    checkLineW(x, y, 1, 1) + checkLineW(x, y, -1, -1) + 1 == 5 ||
+			        //斜向右上左下判定
+                    checkLineW(x, y, -1, 1) + checkLineW(x, y, 1, -1) + 1 == 5)
+			    {
+
+			        window.alert("白棋贏，黑棋輸。");
+
+			    }
+
+			}
+
+
+			//判定黑色連線
+			function checkLineB(x, y, dx, dy) {
+
+			    //連線次數
+			    var link = 0;
+			    for (var i = 0; i < 5; i++) {
+			        //指向下個棋格
+			        x += dx;
+			        y += dy;
+			        //下個棋格非己方棋則結束連線
+			        if (chesspace[x][y] != 1) {
+			            return link;
+			        }
+			        //追加連結次數
+			        link += 1;
+			    }
+			    return link;
+			}
+
+			//判定白色連線
+			function checkLineW(x, y, dx, dy) {
+
+			    //連線次數
+			    var link = 0;
+			    for (var i = 0; i < 5; i++) {
+			        //指向下個棋格
+			        x += dx;
+			        y += dy;
+			        //下個棋格非己方棋則結束連線
+			        if (chesspace[x][y] != 2) {
+			            return link;
+			        }
+			        //追加連結次數
+			        link += 1;
+			    }
+			    return link;
+			}
+
+
+
+
+
+///////////////////AI//////////////////////
+
+
+			var WV1 = 20000;       //電腦在該空位是否能形成五條
+			var WV2 = 19000;       //對方在該空位是否能形成五條
+			                //---------------------------------------//
+			var WV3 = 5500;        //電腦在該空位是否能形成活四
+			var WV15 = 4800;       //電腦下了該空位後會有兩個空位可以形成五條  hide
+			var WV12 = 4500;       //電腦在該空位是否能形成雙半活四
+			                //---------------------------------------//
+			var WV11 = 2500;       //對方在該空位是否能形成雙半活四
+			var WV4 = 2200;        //對方在該空位是否能形成活四
+			var WV16 = 1900;       //對方下了該空位後會有兩個空位可以形成五條  hide
+			var WV17 = 1700;	   //電腦下了可形成特殊活三及特殊半活四(特例)  hide
+			var WV5 = 1500;        //電腦在該空位是否能形成半活四
+			var WV18 = 1400;	   //對方下了可形成特殊活三及特殊半活四(特例)  hide
+			                //---------------------------------------//
+			var WV6 = 500;         //電腦在該空位是否能形成活三
+			var WV7 = 360;         //對方在該空位是否能形成活三
+			var WV8 = 100;         //電腦在該空位是否能形成活二
+			var WV9 = 80;          //對方在該空位是否能形成活二
+			var WV13 = 25;         //對方在該空位是否能形成半活四
+			var WV10 = 20;         //電腦在該空位是否能形成半活三
+			var WV14 = 15;         //對方在該空位是否能形成半活三
+
+
+			// 紀錄權最大重值相同的空格座標，跟數目
+			var swx = new Array(30);
+			var swy = new Array(30);
+			var n_sw = 0;
+            var temp = 0;
+			var max_weight = 0;
+
+
+		    //權重值陣列
+			var weight = new Array(17);
+			for (var i = 0; i < 17; i++)
+			{
+			    weight[i] = new Array(17);
+			}
+
+
+		    // 紀錄每格會形成的東西條數  i = Y, j = X, k = Z
+			var record_line = new Array(17);
+			for (var i = 0; i < 17; i++) {
+			    record_line[i] = new Array(17);
+			}
+			for (var i = 0; i < 17; i++) {
+			    for (var j = 0; j < 17; j++) {
+			        record_line[i][j] = new Array(17);
+			    }
+			}		    
+
+
+            function whiteAI()
+			{
+
+
+                n_sw = 0;
+                temp = 0;
+                max_weight = 0;
+                
+                // 初始化權重值
+			    for( var i=0 ; i<17 ; i++)
+			        for( var j=0 ; j<17 ; j++)
+			            weight[i][j] = 0;
+
+			    // 初始化紀錄條數stack
+			    for( var i=0 ; i<17 ; i++)
+			        for( var j=0 ; j<17 ; j++)
+			            for( var k=0 ; k<17 ; k++)
+			                record_line[i][j][k] = 0;
+
+			    // 初始化相同最大權重值座標
+			    for( var i=0 ; i<30 ; i++)
+			    {	swx[i]=0;	swy[i]=0;	}
+
+			    // 找電腦五條
+			    for( var i=1 ; i<16 ; i++)
+			        for( var j=1 ; j<16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                checkWinW2(i, j);
+
+			    // 找對方五條
+			    for( var i=1 ; i<16 ; i++)
+			        for( var j=1 ; j<16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                checkWinB2( i, j);
+
+			    // 找電腦活四、活三、活二權重值
+			    for ( var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight3( i, j);
+
+			    // 找對手活四、活三、活二權重值
+			    for (var i = 1 ; i < 16 ; i++)
+			    {
+			        for (var j = 1 ; j < 16 ; j++)
+			        {
+			            if (chesspace[i][j] == 0)
+			            {
+			                GetWeight4(i, j);
+			            }
+			            
+			        }
+			    }
+			        
+			            
+
+			    // 找電腦半活四權重值
+			    for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight5( i, j);
+
+			    // 找對手雙半活四、一半活四、一半活三權重值
+			    for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight6( i, j);
+
+			    // 電腦下了該空位後會有兩個空位可以形成五條  hide
+			    for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight7( i, j);
+
+			    // 對手下了該空位後會有兩個空位可以形成五條  hide
+			    for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight8( i, j);
+
+			    //電腦下了可形成特殊活三及特殊半活四(特例)
+			    /*for (var i = 1 ; i < 14 ; i++)
+			        for (var j = 1 ; j < 14 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight9( i, j);
+
+			    //對手下了可形成特殊活三及特殊半活四(特例)
+			    for (var i = 1 ; i < 14 ; i++)
+			        for (var j = 1 ; j < 14 ; j++)
+			            if( chesspace[i][j]==0 )
+			                GetWeight10( i, j);*/
+
+                //檢測權重值
+			    /*for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            alert(i+","+j+"="+weight[i][j]);*/
+
+
+			    // 尋找最大權重
+			    for (var i = 1 ; i < 16 ; i++)
+			        for (var j = 1 ; j < 16 ; j++)
+			            if( weight[i][j]>max_weight )
+			                max_weight = weight[i][j];
+
+
+
+
+
+			    if (max_weight != 0)    // 紀錄所有相同最大權重值座標並亂數選擇   ////須修正
+			    {
+			        for (var i = 1 ; i < 16 ; i++)
+			            for (var j = 1 ; j < 16 ; j++)
+			                if (weight[i][j] == max_weight)
+			                { swx[n_sw] = i; swy[n_sw] = j; n_sw++; }
+			        temp = Math.floor(Math.random() * (n_sw));        ////可能有問題
+			        chesspace[swx[temp]][swy[temp]] = 2;
+	
+
+			        ctx.beginPath();
+			        ctx.arc(chessSize + ((swx[temp]-1) * chessSize), chessSize + ((swy[temp]-1) * chessSize), chessSize / 3, 0, 2 * Math.PI);
+			        ctx.fillStyle = 'white';
+			        ctx.strokeStyle = 'black';
+			        ctx.fill();
+			        ctx.stroke();
+			        checkWinW(swx[temp], swy[temp]);
+
+			    }
+			    else     // 如果權重值都0，選擇第一個空格
+			    {
+			        /*for (var i = 1 ; i < 16 ; i++)
+			            for (var j = 1 ; j < 16 ; j++)
+			                if (chesspace[i][j] == 0) {
+                                chesspace[j][i] = 2;
+			                }*/
+			        chesspace[8][8] = 2;
+
+
+			        ctx.beginPath();
+			        ctx.arc(chessSize + 7 * chessSize, chessSize + 7 * chessSize, chessSize / 3, 0, 2 * Math.PI);
+			        ctx.fillStyle = 'white';
+			        ctx.strokeStyle = 'black';
+			        ctx.fill();
+			        ctx.stroke();
+			        checkWinW(8, 8);
+
+			    }
+
+            }
+
+
+
+
+            //function GetWeight1( Y, X);   //電腦是否能形成五條
+		    //function GetWeight2( Y, X);   //對手是否能形成五條
+		    //function GetWeight3( Y, X);   //電腦是否能形成活四三二
+		    //function GetWeight4( Y, X);   //對手是否能形成活四三二
+		    //function GetWeight5( Y, X);   //電腦是否能形成雙半活四、一半活四、一半活三
+		    //function GetWeight6( Y, X);   //對手是否能形成雙半活四、一半活四、一半活三
+		    //function GetWeight7( Y, X);   //電腦下了該空位後會有兩個空位可以形成五條、或者半活四  hide
+		    //function GetWeight8( Y, X);   //對手下了該空位後會有兩個空位可以形成五條、或者半活四  hide
+		    //function GetWeight9( Y, X);   //電腦下了可形成特殊活三及特殊半活四(特例) hide
+		    //function GetWeight10( Y, X);  //對手下了可形成特殊活三及特殊半活四(特例) hide
+
+
+            //暫時用來找電腦五條
+            function checkWinW2(x, y) {
+
+                chesspace[x][y] = 2;
+
+                //橫向判定
+                if (checkLineW2(x, y, 0, 1) + checkLineW2(x, y, 0, -1) + 1 == 5 ||
+                    //直向判定
+                    checkLineW2(x, y, 1, 0) + checkLineW2(x, y, -1, 0) + 1 == 5 ||
+                    //斜向左上右下判定
+                    checkLineW2(x, y, 1, 1) + checkLineW2(x, y, -1, -1) + 1 == 5 ||
+                    //斜向右上左下判定
+                    checkLineW2(x, y, -1, 1) + checkLineW2(x, y, 1, -1) + 1 == 5) {
+
+                    chesspace[x][y] = 0;  // 還原空白
+                    weight[x][y] += WV1;
+
+                }
+                chesspace[x][y] = 0;
+
+            }
+
+
+            function checkLineW2(x, y, dx, dy) {
+
+                //連線次數
+                var link = 0;
+                for (var i = 0; i < 5; i++) {
+                    //指向下個棋格
+                    x += dx;
+                    y += dy;
+                    //下個棋格非己方棋則結束連線
+                    if (chesspace[x][y] != 2) {
+                        return link;
+                    }
+                    //追加連結次數
+                    link += 1;
+                }
+                return link;
+            }
+
+
+            //暫時用來找對手五條
+            function checkWinB2(x, y) {
+
+                chesspace[x][y] = 1;
+
+                //橫向判定
+                if (checkLineB2(x, y, 0, 1) + checkLineB2(x, y, 0, -1) + 1 == 5 ||
+                    //直向判定
+                    checkLineB2(x, y, 1, 0) + checkLineB2(x, y, -1, 0) + 1 == 5 ||
+                    //斜向左上右下判定
+                    checkLineB2(x, y, 1, 1) + checkLineB2(x, y, -1, -1) + 1 == 5 ||
+                    //斜向右上左下判定
+                    checkLineB2(x, y, -1, 1) + checkLineB2(x, y, 1, -1) + 1 == 5) {
+
+                    chesspace[x][y] = 0;  // 還原空白
+                    weight[x][y] += WV2;
+
+                }
+                chesspace[x][y] = 0;
+
+            }
+
+
+            function checkLineB2(x, y, dx, dy) {
+
+                //連線次數
+                var link = 0;
+                for (var i = 0; i < 5; i++) {
+                    //指向下個棋格
+                    x += dx;
+                    y += dy;
+                    //下個棋格非己方棋則結束連線
+                    if (chesspace[x][y] != 1) {
+                        return link;
+                    }
+                    //追加連結次數
+                    link += 1;
+                }
+                return link;
+            }
+
+
+			function GetWeight1(Y, X)   //電腦在該空位是否能形成五條
+			{
+	            var i, j, five=0;
+
+			    chesspace[Y][X] = 2;  // 暫時先放白棋，以便檢查
+			    // --- 檢查 ＼
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==2 && i>=0 && j>=0 ; i--,j--)	;  //移動到最頭
+			    i++; j++;
+			    for( ; chesspace[i][j]==2 && i<=14 && j<=14 ; i++,j++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV1;
+			        return;
+			    }
+			    else	five=0;
+
+			    // ---- 檢查 |
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==2 && i>=0 ; i--)	;  //移動到最頭
+			    i++;
+			    for( ; chesspace[i][j]==2 && i<=14 ; i++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV1;
+			        return;
+			    }
+			    else	five=0;
+
+			    // --- 檢查 /
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==2 && i>=0 && j<=14 ; i--,j++)	;  //移動到最頭
+			    i++; j--;
+			    for( ; chesspace[i][j]==2 && i<=14 && j>=0 ; i++,j--)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV1;
+			        return;
+			    }
+			    else	five=0;
+
+			    // --- 檢查 -
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==2 && j>=0 ; j--)	;  //移動到最頭
+			    j++;
+			    for( ; chesspace[i][j]==2 && j<=14 ; j++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV1;
+			        return;
+			    }
+			    else	five=0;
+			    chesspace[Y][X] = 0;  // 還原空白
+			    return;
+			}
+			
+			    
+			    
+			    //----------------------------------------------------------------------------
+			function GetWeight2(Y, X)   //對手在該空位是否能形成五條
+			{
+	            var i, j, five=0;
+
+			    chesspace[Y][X] = 1;  // 暫時先放黑棋，以便檢查
+			    // --- 檢查 ＼
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==1 && i>=0 && j>=0 ; i--,j--)	;  //移動到最頭
+			    i++; j++;
+			    for( ; chesspace[i][j]==1 && i<=14 && j<=14 ; i++,j++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV2;
+			        return;
+			    }
+			    else	five=0;
+
+			    // ---- 檢查 |
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==1 && i>=0 ; i--)	;  //移動到最頭
+			    i++;
+			    for( ; chesspace[i][j]==1 && i<=14 ; i++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV2;
+			        return;
+			    }
+			    else	five=0;
+
+			    // --- 檢查 /
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==1 && i>=0 && j<=14 ; i--,j++)	;  //移動到最頭
+			    i++; j--;
+			    for( ; chesspace[i][j]==1 && i<=14 && j>=0 ; i++,j--)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV2;
+			        return;
+			    }
+			    else	five=0;
+
+			    // --- 檢查 -
+			    i=Y; j=X;
+			    for( ; chesspace[i][j]==1 && j>=0 ; j--)	;  //移動到最頭
+			    j++;
+			    for( ; chesspace[i][j]==1 && j<=14 ; j++)	five++;	//計算數目
+			    if(five>=5)
+			    {
+			        chesspace[Y][X] = 0;  // 還原空白
+			        weight[Y][X] += WV2;
+			        return;
+			    }
+			    else	five=0;
+			    chesspace[Y][X] = 0;  // 還原空白
+			    return;
+			}
+			
+			    
+			    
+			    //----------------------------------------------------------------------------
+			function GetWeight3( Y, X)  //電腦在該空位是否能形成活四三二
+			{
+	            var i, j, k, count=0;
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 2;  // 暫時先放黑棋，以便檢查
+			    // --- 檢查 ＼
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==2 && i>=1 && j>=1 ; i--,j--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++; j++;
+			        for( ; chesspace[i][j]==2 && i<=13 && j<=13 ; i++,j++,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( j==15 )	j=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV3; record_line[Y][X][k]=3; k++;}
+			            if(count==3)	{weight[Y][X] += WV6; record_line[Y][X][k]=6; k++;}
+			            if(count==2)	{weight[Y][X] += WV8; record_line[Y][X][k]=8; k++;}
+			        }
+			    }
+
+			    // ---- 檢查 |
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==2 && i>=1 ; i--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++;
+			        for( ; chesspace[i][j]==2 && i<=13 ; i++,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV3; record_line[Y][X][k]=3; k++;}
+			            if(count==3)	{weight[Y][X] += WV6; record_line[Y][X][k]=6; k++;}
+			            if(count==2)	{weight[Y][X] += WV8; record_line[Y][X][k]=8; k++;}
+			        }
+			    }
+
+
+			    // --- 檢查 /
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==2 && i>=1 && j<=13 ; i--,j++)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++; j--;
+			        for( ; chesspace[i][j]==2 && i<=13 && j>=1 ; i++,j--,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( j==-1 )	j=0; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV3; record_line[Y][X][k]=3; k++;}
+			            if(count==3)	{weight[Y][X] += WV6; record_line[Y][X][k]=6; k++;}
+			            if(count==2)	{weight[Y][X] += WV8; record_line[Y][X][k]=8; k++;}
+			        }
+			    }
+
+			    // --- 檢查 -
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==2 && j>=1 ; j--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        j++;
+			        for( ; chesspace[i][j]==2 && j<=13 ; j++,count++)	;	//計算數目
+			        if( j==15 )	j=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV3; record_line[Y][X][k]=3; k++;}
+			            if(count==3)	{weight[Y][X] += WV6; record_line[Y][X][k]=6; k++;}
+			            if(count==2)	{weight[Y][X] += WV8; record_line[Y][X][k]=8; k++;}
+			        }
+			    }
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //----------------------------------------------------------------------------
+			function GetWeight4( Y, X)  //對手在該空位是否能形成活四三二
+			{
+	            var i, j, k, count=0;
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 1;  // 暫時先放白棋，以便檢查
+			    // --- 檢查 ＼
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==1 && i>=1 && j>=1 ; i--,j--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++; j++;
+			        for( ; chesspace[i][j]==1 && i<=13 && j<=13 ; i++,j++,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( j==15 )	j=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV4; record_line[Y][X][k]=4; k++;}
+			            if(count==3)	{weight[Y][X] += WV7; record_line[Y][X][k]=7; k++;}
+			            if(count==2)	{weight[Y][X] += WV9; record_line[Y][X][k]=9; k++;}
+			        }
+			    }
+
+			    // ---- 檢查 |
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==1 && i>=1 ; i--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++;
+			        for( ; chesspace[i][j]==1 && i<=13 ; i++,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV4; record_line[Y][X][k]=4; k++;}
+			            if(count==3)	{weight[Y][X] += WV7; record_line[Y][X][k]=7; k++;}
+			            if(count==2)	{weight[Y][X] += WV9; record_line[Y][X][k]=9; k++;}
+			        }
+			    }
+
+
+			    // --- 檢查 /
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==1 && i>=1 && j<=13 ; i--,j++)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        i++; j--;
+			        for( ; chesspace[i][j]==1 && i<=13 && j>=1 ; i++,j--,count++)	;	//計算數目
+			        if( i==15 )	i=14; // 調整過頭
+			        if( j==-1 )	j=0; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV4; record_line[Y][X][k]=4; k++;}
+			            if(count==3)	{weight[Y][X] += WV7; record_line[Y][X][k]=7; k++;}
+			            if(count==2)	{weight[Y][X] += WV9; record_line[Y][X][k]=9; k++;}
+			        }
+			    }
+
+			    // --- 檢查 -
+			    for( i=Y,j=X,count=0 ; chesspace[i][j]==1 && j>=1 ; j--)	;  //移動到最頭
+			    if( chesspace[i][j]==0 )  // 等於0表示開頭為活路
+			    {
+			        j++;
+			        for( ; chesspace[i][j]==1 && j<=13 ; j++,count++)	;	//計算數目
+			        if( j==15 )	j=14; // 調整過頭
+			        if( chesspace[i][j]==0 )    // 等於0表示末端為活路
+			        {
+			            if(count==4)	{weight[Y][X] += WV4; record_line[Y][X][k]=4; k++;}
+			            if(count==3)	{weight[Y][X] += WV7; record_line[Y][X][k]=7; k++;}
+			            if(count==2)	{weight[Y][X] += WV9; record_line[Y][X][k]=9; k++;}
+			        }
+			    }
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //----------------------------------------------------------------------------
+			function GetWeight5( Y, X)  //電腦在該空位是否能形成雙半活四、一半活四、一半活三
+			{
+	            var i, j, k, count=0;
+			    var one_empty=false;
+			    var n_four=0;	// 計算有沒有兩個以上的半活四
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 2;  // 暫時先放黑棋，以便檢查
+			    // --- 檢查 ＼
+			    for( i=Y, j=X ; chesspace[i][j]==2 && i>=0 && j>=0 ; i--,j-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 && j>=0 )	{ one_empty=true; i++; j++; }  // 等於0表示開頭為活路
+			    else {	i++; j++; }
+			    for( ; chesspace[i][j]==2 && i<=13 && j<=13 ; i++,j++,count++)	;	//計算數目
+			    if( chesspace[i][j]==2 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            n_four++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV10;	record_line[Y][X][k]=10;	k++;	}
+
+			    // ---- 檢查 |
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==2 && i>=0 ; i-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 )	{ one_empty=true; i++; }  // 等於0表示開頭為活路
+			    else	{ i++; }
+			    for( ; chesspace[i][j]==2 && i<=13 ; i++,count++)	;	//計算數目
+			    if( chesspace[i][j]==2 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            n_four++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV10;	record_line[Y][X][k]=10;	k++;	}
+
+			    // --- 檢查 /
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==2 && i>=0 && j<=14 ; i--,j++ )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 && j<=14 )	{ one_empty=true; i++; j--; }  // 等於0表示開頭為活路
+			    else	{ i++; j--; }
+			    for( ; chesspace[i][j]==2 && i<=13 && j>=1 ; i++,j--,count++)	;	//計算數目
+			    if( chesspace[i][j]==2 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            n_four++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV10;	record_line[Y][X][k]=10;	k++;	}
+
+			    // --- 檢查 -
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==2 && j>=0 ; j-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && j>=0 )	{ one_empty=true; j++; }  // 等於0表示開頭為活路
+			    else	j++;
+			    for( ; chesspace[i][j]==2 && j<=13 ; j++,count++)	;	//計算數目
+			    if( chesspace[i][j]==2 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            n_four++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV10;	record_line[Y][X][k]=10;	k++;	}
+
+			    if( n_four>=2 )	{ weight[Y][X] += WV12;	record_line[Y][X][k]=12; }  //兩個半活四
+			    if (n_four==1)	{ weight[Y][X] += WV5; record_line[Y][X][k]=5; };     //一個半活四
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //----------------------------------------------------------------------------
+			function GetWeight6( Y, X)   //對手是否能形成雙半活四、一半活四、一半活三
+			{
+	            var i, j, k, count=0;
+			    var one_empty=false;
+			    var four_ways=0;
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 1;  // 暫時先放白棋，以便檢查
+			    // --- 檢查 ＼
+			    for( i=Y, j=X ; chesspace[i][j]==1 && i>=0 && j>=0 ; i--,j-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 && j>=0 )	{ one_empty=true; i++; j++; }  // 等於0表示開頭為活路
+			    else {	i++; j++; }
+			    for( ; chesspace[i][j]==1 && i<=13 && j<=13 ; i++,j++,count++)	;	//計算數目
+			    if( chesspace[i][j]==1 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            four_ways++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV14;	record_line[Y][X][k]=14;	k++;	}
+
+			    // ---- 檢查 |
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==1 && i>=0 ; i-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 )	{ one_empty=true; i++; }  // 等於0表示開頭為活路
+			    else	{ i++; }
+			    for( ; chesspace[i][j]==1 && i<=13 ; i++,count++)	;	//計算數目
+			    if( chesspace[i][j]==1 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            four_ways++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV14;	record_line[Y][X][k]=14;	k++;	}
+
+			    // --- 檢查 /
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==1 && i>=0 && j<=14 ; i--,j++ )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && i>=0 && j<=14 )	{ one_empty=true; i++; j--; }  // 等於0表示開頭為活路
+			    else	{ i++; j--; }
+			    for( ; chesspace[i][j]==1 && i<=13 && j>=1 ; i++,j--,count++)	;	//計算數目
+			    if( chesspace[i][j]==1 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            four_ways++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV14;	record_line[Y][X][k]=14;	k++;	}
+
+			    // --- 檢查 -
+			    for( i=Y, j=X, count=0, one_empty=false ; chesspace[i][j]==1 && j>=0 ; j-- )	;   //移動到最頭
+			    if( chesspace[i][j]==0 && j>=0 )	{ one_empty=true; j++; }  // 等於0表示開頭為活路
+			    else	j++;
+			    for( ; chesspace[i][j]==1 && j<=13 ; j++,count++)	;	//計算數目
+			    if( chesspace[i][j]==1 )	count++;
+			    if( count==4 )   // 表示有四科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			            four_ways++;
+			    if( count==3 )   // 表示有三科
+			        // 如果已經一活路，或者最後端為活路，但並非兩端皆活路
+			        if( (one_empty==true && chesspace[i][j]!=0) || (one_empty==false && chesspace[i][j]==0) )
+			        {	weight[Y][X] += WV14;	record_line[Y][X][k]=14;	k++;	}
+
+			    if( four_ways>=2 )	{ weight[Y][X]+=WV11; record_line[Y][X][k]=11; }
+			    if( four_ways==1 )	{ weight[Y][X]+=WV13; record_line[Y][X][k]=13; }
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //-----------------------------------------------------------------------------
+			function GetWeight7( Y, X) //電腦下了該空位後會有兩個空位可以形成五條、或者半活四  hide
+			{
+	            var i, j, k, pi, pj, range, tempj;
+			    var win_count=0;
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 2;  // 暫時先放黑棋，以便檢查
+			    for( pi=Y, range=4 ; pi>0 && range>0 ; pi--,range-- )	;	//移動Y軸到指定範圍的左上角
+			    for( pj=X, range=4 ; pj>0 && range>0 ; pj--,range-- )	;	//移動X軸到指定範圍的左上角
+
+			    tempj = pj;	// 記得一開始的X軸，以免迴圈跑掉
+			    for( i=1 ; i<=9 && pi<=14 && win_count<=1 ; i++,pi++ )
+			        for( j=1,pj=tempj ; j<=9 && pj<=14 && win_count<=1 ; j++,pj++ )
+			            if( chesspace[pi][pj]==0 )
+			            {
+			                if( GetWeight1( pi, pj, chesspace ) )
+			                {	win_count++;	weight[pi][pj] -= WV1;	}
+			            }
+
+			    //電腦下了該空位後會有兩個空位可以形成五條  hide
+			    if(win_count>=2)	{ weight[Y][X] += WV15; record_line[Y][X][k]=15;}
+
+			    //代表可以形成一個五條(非連續半活四)
+			    if(win_count==1)	{ weight[Y][X] += WV5; record_line[Y][X][k]=5; }
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //-----------------------------------------------------------------------------
+			function GetWeight8( Y, X) //對手下了該空位後會有兩個空位可以形成五條、或者半活四  hide
+			{
+	            var i, j, k, pi, pj, range, tempj;
+			    var win_count=0;
+
+			    //移動紀錄條到相對位置空點
+			    for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+
+			    chesspace[Y][X] = 1;  // 暫時先放白棋，以便檢查
+			    for( pi=Y, range=4 ; pi>0 && range>0 ; pi--,range-- )	;	//移動Y軸到指定範圍的左上角
+			    for( pj=X, range=4 ; pj>0 && range>0 ; pj--,range-- )	;	//移動X軸到指定範圍的左上角
+
+			    tempj = pj;	// 記得一開始的X軸，以免迴圈跑掉
+			    for( i=1 ; i<=9 && pi<=14 && win_count<=1 ; i++,pi++ )
+			        for( j=1,pj=tempj ; j<=9 && pj<=14 && win_count<=1 ; j++,pj++ )
+			            if( chesspace[pi][pj]==0 )
+			            {
+			                if( GetWeight2( pi, pj, chesspace ) )
+			                {	win_count++;	weight[pi][pj] -= WV2;	}
+			            }
+
+			    //電腦下了該空位後會有兩個空位可以形成五條  hide
+			    if(win_count>=2)	{ weight[Y][X] += WV16; record_line[Y][X][k]=16;}
+
+			    //代表可以形成一個五條(非連續半活四)
+			    if(win_count==1)	{ weight[Y][X] += WV13; record_line[Y][X][k]=13; }
+
+			    chesspace[Y][X] = 0;  // 還原空白
+			}
+			
+			    
+			    
+			    //-----------------------------------------------------------------------------
+			function GetWeight9( Y, X)   //電腦下了可形成特殊活三及特殊半活四(特例)
+			{
+	            var k;
+			    var three=false, four=false, temp=false;
+
+			    // --- 檢查 ＼
+			    //檢查特殊活三
+			    if( (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==0 ) ||
+                    (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2 && chesspace[Y-2][X-2]==0 ) ||
+                    (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0 ) ||
+                    (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==2 && chesspace[Y+4][X+4]==0 ) ||
+                    (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==0 ) ||
+                    (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==0 ) ||
+                    (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==2 && chesspace[Y+4][X+4]==0 ) ||
+                    (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==0 ) ||
+                    (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0 ) )
+			        three = true;
+
+			    //檢查特殊半活四
+			    if(three==false)
+			        if(	(chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==2) ||
+                        (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2) ||
+                        (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2) ||
+                        (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2) ||
+                        (chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==2 && chesspace[Y+4][X+4]==2) ||
+                        (chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2) ||
+                        (chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2) ||
+                        (chesspace[Y-4][X-4]==2 && chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2) ||
+                        (chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==2 && chesspace[Y+4][X+4]==2) ||
+                        (chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==2) ||
+                        (chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==2) ||
+                        (chesspace[Y-4][X-4]==2 && chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==2) ||
+                        (chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==0 && chesspace[Y+4][X+4]==2) ||
+                        (chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==2) ||
+                        (chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==2) ||
+                        (chesspace[Y-4][X-4]==2 && chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==0) ||
+                        (chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==2 && chesspace[Y+4][X+4]==0) ||
+                        (chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==2 && chesspace[Y+3][X+3]==0) ||
+                        (chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==2 && chesspace[Y+2][X+2]==0) ||
+                        (chesspace[Y-3][X-3]==2 && chesspace[Y-2][X-2]==2 && chesspace[Y-1][X-1]==2 && chesspace[Y+1][X+1]==0) )
+			            four = true;
+
+			    // ---- 檢查 |
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==0 ) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2 && chesspace[Y-2][X]==0 ) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0 ) ||
+                        (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==2 && chesspace[Y+4][X]==0 ) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==0 ) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==2 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==0 ) ||
+                        (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==2 && chesspace[Y+4][X]==0 ) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==0 ) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==2 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==2) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==2 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2) ||
+                        (chesspace[Y+1][X]==0 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==2 && chesspace[Y+4][X]==2) ||
+                        (chesspace[Y-2][X]==2 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2) ||
+                        (chesspace[Y-3][X]==2 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2) ||
+                        (chesspace[Y-4][X]==2 && chesspace[Y-3][X]==0 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2) ||
+                        (chesspace[Y+1][X]==2 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==2 && chesspace[Y+4][X]==2) ||
+                        (chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==2) ||
+                        (chesspace[Y-3][X]==2 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==2) ||
+                        (chesspace[Y-4][X]==2 && chesspace[Y-3][X]==2 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==2) ||
+                        (chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==0 && chesspace[Y+4][X]==2) ||
+                        (chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==2) ||
+                        (chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==2) ||
+                        (chesspace[Y-4][X]==2 && chesspace[Y-3][X]==2 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==0) ||
+                        (chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==2 && chesspace[Y+4][X]==0) ||
+                        (chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==2 && chesspace[Y+3][X]==0) ||
+                        (chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==2 && chesspace[Y+2][X]==0) ||
+                        (chesspace[Y-3][X]==2 && chesspace[Y-2][X]==2 && chesspace[Y-1][X]==2 && chesspace[Y+1][X]==0) )
+			            four = true;
+
+			    // --- 檢查 /
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==0 ) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2 && chesspace[Y-2][X+2]==0 ) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0 ) ||
+                        (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==2 && chesspace[Y+4][X-4]==0 ) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==0 ) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==0 ) ||
+                        (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==2 && chesspace[Y+4][X-4]==0 ) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==0 ) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==2) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2) ||
+                        (chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==2 && chesspace[Y+4][X-4]==2) ||
+                        (chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2) ||
+                        (chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2) ||
+                        (chesspace[Y-4][X+4]==2 && chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2) ||
+                        (chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==2 && chesspace[Y+4][X-4]==2) ||
+                        (chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==2) ||
+                        (chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==2) ||
+                        (chesspace[Y-4][X+4]==2 && chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==2) ||
+                        (chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==0 && chesspace[Y+4][X-4]==2) ||
+                        (chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==2) ||
+                        (chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==2) ||
+                        (chesspace[Y-4][X+4]==2 && chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==0) ||
+                        (chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==2 && chesspace[Y+4][X-4]==0) ||
+                        (chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==2 && chesspace[Y+3][X-3]==0) ||
+                        (chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==2 && chesspace[Y+2][X-2]==0) ||
+                        (chesspace[Y-3][X+3]==2 && chesspace[Y-2][X+2]==2 && chesspace[Y-1][X+1]==2 && chesspace[Y+1][X-1]==0) )
+			            four = true;
+
+			    // --- 檢查 -
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==0 ) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2 && chesspace[Y][X-2]==0 ) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0 ) ||
+                        (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==2 && chesspace[Y][X+4]==0 ) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==0 ) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==2 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==0 ) ||
+                        (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==2 && chesspace[Y][X+4]==0 ) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==0 ) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==2 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==2) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==2 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2) ||
+                        (chesspace[Y][X+1]==0 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==2 && chesspace[Y][X+4]==2) ||
+                        (chesspace[Y][X-2]==2 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2) ||
+                        (chesspace[Y][X-3]==2 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2) ||
+                        (chesspace[Y][X-4]==2 && chesspace[Y][X-3]==0 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2) ||
+                        (chesspace[Y][X+1]==2 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==2 && chesspace[Y][X+4]==2) ||
+                        (chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==2) ||
+                        (chesspace[Y][X-3]==2 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==2) ||
+                        (chesspace[Y][X-4]==2 && chesspace[Y][X-3]==2 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==2) ||
+                        (chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==0 && chesspace[Y][X+4]==2) ||
+                        (chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==2) ||
+                        (chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==2) ||
+                        (chesspace[Y][X-4]==2 && chesspace[Y][X-3]==2 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==0) ||
+                        (chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==2 && chesspace[Y][X+4]==0) ||
+                        (chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==2 && chesspace[Y][X+3]==0) ||
+                        (chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==2 && chesspace[Y][X+2]==0) ||
+                        (chesspace[Y][X-3]==2 && chesspace[Y][X-2]==2 && chesspace[Y][X-1]==2 && chesspace[Y][X+1]==0) )
+			            four = true;
+
+			    if(three && four)	//成立的話代表找到
+			    {
+			        //移動紀錄條到相對位置空點
+			        for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+			        weight[Y][X] += WV17;
+			        record_line[Y][X][k]=17;
+			    }
+
+			}
+			
+			    
+			    //-----------------------------------------------------------------------------
+			function GetWeight10( Y, X)   //對手下了可形成特殊活三及特殊半活四(特例)
+			{
+	            var k;
+			    var three=false, four=false, temp=false;
+
+			    // --- 檢查 ＼
+			    //檢查特殊活三
+			    if( (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==0 ) ||
+                    (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1 && chesspace[Y-2][X-2]==0 ) ||
+                    (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0 ) ||
+                    (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==1 && chesspace[Y+4][X+4]==0 ) ||
+                    (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==0 ) ||
+                    (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==0 ) ||
+                    (chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==1 && chesspace[Y+4][X+4]==0 ) ||
+                    (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==0 ) ||
+                    (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0 ) )
+			        three = true;
+
+			    //檢查特殊半活四
+			    if(three==false)
+			        if(	(chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==1) ||
+                        (chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1) ||
+                        (chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1) ||
+                        (chesspace[Y-4][X-4]==0 && chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1) ||
+                        (chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==1 && chesspace[Y+4][X+4]==1) ||
+                        (chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1) ||
+                        (chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1) ||
+                        (chesspace[Y-4][X-4]==1 && chesspace[Y-3][X-3]==0 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1) ||
+                        (chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==1 && chesspace[Y+4][X+4]==1) ||
+                        (chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==1) ||
+                        (chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==0 && chesspace[Y+1][X+1]==1) ||
+                        (chesspace[Y-4][X-4]==1 && chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==0 && chesspace[Y-1][X-1]==1) ||
+                        (chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==0 && chesspace[Y+4][X+4]==1) ||
+                        (chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==0 && chesspace[Y+3][X+3]==1) ||
+                        (chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0 && chesspace[Y+2][X+2]==1) ||
+                        (chesspace[Y-4][X-4]==1 && chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==0) ||
+                        (chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==1 && chesspace[Y+4][X+4]==0) ||
+                        (chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==1 && chesspace[Y+3][X+3]==0) ||
+                        (chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==1 && chesspace[Y+2][X+2]==0) ||
+                        (chesspace[Y-3][X-3]==1 && chesspace[Y-2][X-2]==1 && chesspace[Y-1][X-1]==1 && chesspace[Y+1][X+1]==0) )
+			            four = true;
+
+			    // ---- 檢查 |
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==0 ) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1 && chesspace[Y-2][X]==0 ) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0 ) ||
+                        (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==1 && chesspace[Y+4][X]==0 ) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==0 ) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==1 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==0 ) ||
+                        (chesspace[Y-1][X]==0 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==1 && chesspace[Y+4][X]==0 ) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==0 ) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==1 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==1) ||
+                        (chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1) ||
+                        (chesspace[Y-3][X]==0 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1) ||
+                        (chesspace[Y-4][X]==0 && chesspace[Y-3][X]==1 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1) ||
+                        (chesspace[Y+1][X]==0 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==1 && chesspace[Y+4][X]==1) ||
+                        (chesspace[Y-2][X]==1 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1) ||
+                        (chesspace[Y-3][X]==1 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1) ||
+                        (chesspace[Y-4][X]==1 && chesspace[Y-3][X]==0 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1) ||
+                        (chesspace[Y+1][X]==1 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==1 && chesspace[Y+4][X]==1) ||
+                        (chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==1) ||
+                        (chesspace[Y-3][X]==1 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==0 && chesspace[Y+1][X]==1) ||
+                        (chesspace[Y-4][X]==1 && chesspace[Y-3][X]==1 && chesspace[Y-2][X]==0 && chesspace[Y-1][X]==1) ||
+                        (chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==0 && chesspace[Y+4][X]==1) ||
+                        (chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==0 && chesspace[Y+3][X]==1) ||
+                        (chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0 && chesspace[Y+2][X]==1) ||
+                        (chesspace[Y-4][X]==1 && chesspace[Y-3][X]==1 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==0) ||
+                        (chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==1 && chesspace[Y+4][X]==0) ||
+                        (chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==1 && chesspace[Y+3][X]==0) ||
+                        (chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==1 && chesspace[Y+2][X]==0) ||
+                        (chesspace[Y-3][X]==1 && chesspace[Y-2][X]==1 && chesspace[Y-1][X]==1 && chesspace[Y+1][X]==0) )
+			            four = true;
+
+			    // --- 檢查 /
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==0 ) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1 && chesspace[Y-2][X+2]==0 ) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0 ) ||
+                        (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==1 && chesspace[Y+4][X-4]==0 ) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==0 ) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==0 ) ||
+                        (chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==1 && chesspace[Y+4][X-4]==0 ) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==0 ) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==1) ||
+                        (chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1) ||
+                        (chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1) ||
+                        (chesspace[Y-4][X+4]==0 && chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1) ||
+                        (chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==1 && chesspace[Y+4][X-4]==1) ||
+                        (chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1) ||
+                        (chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1) ||
+                        (chesspace[Y-4][X+4]==1 && chesspace[Y-3][X+3]==0 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1) ||
+                        (chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==1 && chesspace[Y+4][X-4]==1) ||
+                        (chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==1) ||
+                        (chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==0 && chesspace[Y+1][X-1]==1) ||
+                        (chesspace[Y-4][X+4]==1 && chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==0 && chesspace[Y-1][X+1]==1) ||
+                        (chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==0 && chesspace[Y+4][X-4]==1) ||
+                        (chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==0 && chesspace[Y+3][X-3]==1) ||
+                        (chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0 && chesspace[Y+2][X-2]==1) ||
+                        (chesspace[Y-4][X+4]==1 && chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==0) ||
+                        (chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==1 && chesspace[Y+4][X-4]==0) ||
+                        (chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==1 && chesspace[Y+3][X-3]==0) ||
+                        (chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==1 && chesspace[Y+2][X-2]==0) ||
+                        (chesspace[Y-3][X+3]==1 && chesspace[Y-2][X+2]==1 && chesspace[Y-1][X+1]==1 && chesspace[Y+1][X-1]==0) )
+			            four = true;
+
+			    // --- 檢查 -
+			    temp = false;
+			    //檢查特殊活三
+			    if(three==false)
+			        if( (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==0 ) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1 && chesspace[Y][X-2]==0 ) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0 ) ||
+                        (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==1 && chesspace[Y][X+4]==0 ) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==0 ) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==1 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==0 ) ||
+                        (chesspace[Y][X-1]==0 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==1 && chesspace[Y][X+4]==0 ) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==0 ) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==1 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0 ) )
+			        {	three = true;	temp = true;	}
+
+			    //檢查特殊半活四
+			    if(four==false && temp==false)
+			        if(	(chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==1) ||
+                        (chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1) ||
+                        (chesspace[Y][X-3]==0 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1) ||
+                        (chesspace[Y][X-4]==0 && chesspace[Y][X-3]==1 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1) ||
+                        (chesspace[Y][X+1]==0 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==1 && chesspace[Y][X+4]==1) ||
+                        (chesspace[Y][X-2]==1 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1) ||
+                        (chesspace[Y][X-3]==1 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1) ||
+                        (chesspace[Y][X-4]==1 && chesspace[Y][X-3]==0 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1) ||
+                        (chesspace[Y][X+1]==1 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==1 && chesspace[Y][X+4]==1) ||
+                        (chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==1) ||
+                        (chesspace[Y][X-3]==1 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==0 && chesspace[Y][X+1]==1) ||
+                        (chesspace[Y][X-4]==1 && chesspace[Y][X-3]==1 && chesspace[Y][X-2]==0 && chesspace[Y][X-1]==1) ||
+                        (chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==0 && chesspace[Y][X+4]==1) ||
+                        (chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==0 && chesspace[Y][X+3]==1) ||
+                        (chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0 && chesspace[Y][X+2]==1) ||
+                        (chesspace[Y][X-4]==1 && chesspace[Y][X-3]==1 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==0) ||
+                        (chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==1 && chesspace[Y][X+4]==0) ||
+                        (chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==1 && chesspace[Y][X+3]==0) ||
+                        (chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==1 && chesspace[Y][X+2]==0) ||
+                        (chesspace[Y][X-3]==1 && chesspace[Y][X-2]==1 && chesspace[Y][X-1]==1 && chesspace[Y][X+1]==0) )
+			            four = true;
+
+			    if(three && four)	//成立的話代表找到
+			    {
+			        //移動紀錄條到相對位置空點
+			        for( k=0 ; record_line[Y][X][k]!=0 ; k++ )	;
+			        weight[Y][X] += WV18;
+			        record_line[Y][X][k]=18;
+			    }
+
+			}
+
+
+		</script>
+
+	</body>
+</html>
